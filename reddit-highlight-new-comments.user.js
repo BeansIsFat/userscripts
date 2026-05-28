@@ -3,7 +3,7 @@
 // @namespace   https://github.com/Farow/userscripts
 // @description Highlights new comments since your last visit
 // @include     /https?:\/\/[a-z]+\.reddit\.com\/r\/[\w:+-]+\/comments\/[\da-z]/
-// @version     2.0.2
+// @version     2.0.3
 // @require     https://raw.githubusercontent.com/bgrins/TinyColor/master/tinycolor.js
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -15,6 +15,7 @@
 /*
 	changelog:
 
+		2026-05-28 - 2.0.3 - skip comments missing .author element
 		2020-03-14 - 2.0.2 - fixed exception on comments with no live timestamps
 		2019-02-12 - 2.0.1 - fixed issue with media threads
 		2016-02-16 - 2.0.0
@@ -81,8 +82,12 @@ let HNC = {
 				continue;
 			}
 
-			/* skip our own comments */
-			let author = comment.getElementsByClassName('author')[0].textContent;
+			/* skip our own comments and comments without .author element */
+			let authorEl = comment.getElementsByClassName('author')[0];
+			if (!authorEl) {
+				continue;
+			}
+			let author = authorEl.textContent;
 			if (username && username == author) {
 				continue;
 			}
