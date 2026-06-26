@@ -3,7 +3,7 @@
 // @namespace   https://github.com/Farow/userscripts
 // @description Highlights new comments since your last visit
 // @include     /https?:\/\/[a-z]+\.reddit\.com\/r\/[\w:+-]+\/comments\/[\da-z]/
-// @version     2.0.3
+// @version     2.0.4
 // @require     https://raw.githubusercontent.com/bgrins/TinyColor/master/tinycolor.js
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -15,7 +15,8 @@
 /*
 	changelog:
 
-		2026-05-28 - 2.0.3 - skip comments missing .author element
+		2026-06-26 - 2.0.4 - extract thread ID from URL instead of .thing.link class (deleted posts)
+		2026-05-28 - 2.0.3 - skip comments from users who have blocked the signed-in user (no author element)
 		2020-03-14 - 2.0.2 - fixed exception on comments with no live timestamps
 		2019-02-12 - 2.0.1 - fixed issue with media threads
 		2016-02-16 - 2.0.0
@@ -38,7 +39,12 @@ let HNC = {
 			return;
 		}
 
-		let thread = document.getElementsByClassName('thing link')[0].className.match(/id-(t3_[^ ]+)/)[1],
+		let urlMatch = window.location.pathname.match(/\/comments\/([a-z0-9]+)\//);
+		if (!urlMatch) {
+			return;
+		}
+
+		let thread = 't3_' + urlMatch[1],
 			now    = Date.now()
 		;
 
@@ -82,7 +88,7 @@ let HNC = {
 				continue;
 			}
 
-			/* skip our own comments and comments without .author element */
+			/* skip our own comments and comments from users who have blocked us */
 			let authorEl = comment.getElementsByClassName('author')[0];
 			if (!authorEl) {
 				continue;
